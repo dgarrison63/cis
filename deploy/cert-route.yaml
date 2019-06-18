@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: Route
+metadata:
+  labels:
+    namespace: default
+    name: demo-app-reencrypt
+    # Tells the BIG-IP Controller to watch Routes with a specific label.
+    # Include the label in the k8s-bigip-ctlr Deployment under "args"
+    # (for example, "--route-label="App1")
+    f5type: virtual-server
+  name: demo-app-reencrypt
+  annotations:
+    # See the k8s-bigip-ctlr documentation for information about
+    # all Route Annotations
+    # https://clouddocs.f5.com/products/connectors/k8s-bigip-ctlr/latest/#supported-route-annotations
+    virtual-server.f5.com/balance: round-robin
+    virtual-server.f5.com/serverssl: /Common/serverssl
+    virtual-server.f5.com/health: |
+      [
+        {
+          "path": "tls-reencrypt.f5.example.com/",
+          "send": "HTTP GET /",
+          "interval": 5,
+          "timeout": 10,
+          "type": "https"
+        }
+      ]
+spec:
+  host: tls-reencrypt.f5.example.com
+  path: "/"
+  port:
+    targetPort: 443
+  tls:
+    certificate: |
+      -----BEGIN CERTIFICATE-----
+      MIIDvzCCAqegAwIBAgIJAPROO1Y8d90AMA0GCSqGSIb3DQEBCwUAMHYxCzAJBgNV
+      BAYTAlVTMRMwEQYDVQQIDApXYXNoaW5ndG9uMRAwDgYDVQQHDAdTZWF0dGxlMRQw
+      EgYDVQQKDAtGNSBOZXR3b3JrczELMAkGA1UECwwCUE0xHTAbBgNVBAMMFHNvY2tz
+      aG9wLmV4YW1wbGUuY29tMB4XDTE4MTEwNzAxMjU1MloXDTE5MTEwNzAxMjU1Mlow
+      djELMAkGA1UEBhMCVVMxEzARBgNVBAgMCldhc2hpbmd0b24xEDAOBgNVBAcMB1Nl
+      YXR0bGUxFDASBgNVBAoMC0Y1IE5ldHdvcmtzMQswCQYDVQQLDAJQTTEdMBsGA1UE
+      AwwUc29ja3Nob3AuZXhhbXBsZS5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAw
+      ggEKAoIBAQDOah09VQrqiayL0HbRCHUs+E90DFxIXPsliJfax+kb2PensrlHSRLh
+      cLukL4OtuDNtOUWvxHNgieVRsdjueUuMPa3CJVNQ8wDGK33ugwVrqrDvyAHZxAOe
+      EaqEpDiOdPErlm3S7g60gjNGG6/j0POfNvyLU3O5UGWMnNbL5C0PRBccX6qRvhd5
+      MhlOcPkAa5tvwATsz9qnvfWZa1UoRtst+qqTKpkHnfZG/uVC3sjK45mHsncPlNi/
+      cJjsHtSNgCezEQaS6wlxn2fANkF9q5l0cMLLko4P0aUN7cjLlxYqUMoeDNHAUFtB
+      TWSdYSTS/J3McUtbjguRfJrYWKC/S501AgMBAAGjUDBOMB0GA1UdDgQWBBSBNqIj
+      40BI3b4PA6CGPLz1O/qOIzAfBgNVHSMEGDAWgBSBNqIj40BI3b4PA6CGPLz1O/qO
+      IzAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQBya8WXdSLh9q0WVgWL
+      PSBONkuNitKx9jXpQcXTdsTYS3GrTBbSfqHh/coxaNupHjmAmNjqAeKUVnWoO/s/
+      veYM4p6Y50lHRf/2vkgF05vMmun85wRnQeHEfwrG/nKsQovMqrSedP1K3Hto9yMJ
+      3wku/g5vMAv7QY7UB77kw6Wqg56TzvcnOuL3LHGcHRWmW3omakYTPCcfXq9x3QC/
+      igTubYUlvLj8lybzq4Ymu5G0ODzH2/YG7lR4oFww1q2KkEzfIKLgMHh8kbvZMX/k
+      XV7uPtIIAv8wZ5b/+BwwaguUnCQhbSdFPyYosEuJhOVDI+KupEqym0ZvMJaeAmkI
+      FpH0
+      -----END CERTIFICATE-----
+    key: |
+      -----BEGIN PRIVATE KEY-----
+      MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDOah09VQrqiayL
+      0HbRCHUs+E90DFxIXPsliJfax+kb2PensrlHSRLhcLukL4OtuDNtOUWvxHNgieVR
+      sdjueUuMPa3CJVNQ8wDGK33ugwVrqrDvyAHZxAOeEaqEpDiOdPErlm3S7g60gjNG
+      G6/j0POfNvyLU3O5UGWMnNbL5C0PRBccX6qRvhd5MhlOcPkAa5tvwATsz9qnvfWZ
+      a1UoRtst+qqTKpkHnfZG/uVC3sjK45mHsncPlNi/cJjsHtSNgCezEQaS6wlxn2fA
+      NkF9q5l0cMLLko4P0aUN7cjLlxYqUMoeDNHAUFtBTWSdYSTS/J3McUtbjguRfJrY
+      WKC/S501AgMBAAECggEBAJc5av6aJYs7Hiy4p7PxbFdr/FnbDGj/pggTkJ16xK/g
+      P2CfMdqmEK0VuINLRD+rqhGlWgax+I2LuXQmxfXA67ZtIbYRPn8Z6UFGb9akKv58
+      aXDiqWhvkO7npnPTFJRZ3K7AYOmd+ywID6SXeD+BwFqvIEq68xebbSqdZUivfMun
+      FzovyebzIMuJfCqRhuE5M35CobJ6yOOtyaHInJB/0lVcGkn8PhziqUMCz6bkxcMl
+      JUxilwT9LSeoBlhIjbe8SajWx9p3ikUQjExdNhiDwjUNgFxyrx09Az3Mjx59fP/M
+      5S1YGNdFkLUFHKzDyrUtN3+EzzjB2ePi+KevpgYwSwECgYEA97pQBI+zHTUHa14O
+      d9ufVRUokZirTMYZSTURXqsKx3gOOI2E7IJ+/bCvA+0ed5BSLJi5RA7b7hxUPnHb
+      4TsF/0+7pjWqObQhF6DAGjVfPLlUi1ctWphQbCTRbMxuWxmjSzqeOfS6EzQNy6Y3
+      FWE1aMvXXumoVdcDY+ehBv6La5UCgYEA1U6jKuoj7oLxC2TlfOVJDlHbhCZckAW2
+      5q5olKqd4PIgst3eiA4netKq2PR53BRS3uh4IXapBDQ0FyrmBzrAMEXmVUc2/0D4
+      f9kd3g6m4Z2l+3N7vEfZQhD2KFj23uNIlMpCXApBLPwJ1WAMbdq6sfF9RwCMc9Q7
+      Z98yAlTQAyECgYEA0iifJZ97BnYsWyup/oi0/Qs8JXhtKm6MmQyKNdPJCzuQZO26
+      LKLwdOvlLeGFjU1ESU0vLsukTLZ/yZHyRXs7NUNBIFo6lUV5JYBcOF+68dsQHD3S
+      3h6Fa5k4iaJMpMB1RabvAJ/bE9t/MJtL87lKBCOaDI0RH/GOkLy6YSKkyJkCgYAw
+      J3eIeaEw+BiIlPeF0ZFDjVE8LRjaXp/ixd7QKRBJNwAQwSu6lU9uV96/6bkU6PWo
+      Ytyz2UDgtRRJYqLZYPcALteHyvLsfvNakV4/whkEd/1/nZuCbsnqM0AO7b6VpMO+
+      60Y91wbNq/xgUjWcGzPodfbtL3+FqpTapzV390OaYQKBgQCwm7cJAb7+WDgadeM1
+      NbFEYNah6B5O3mLrnsoc4YZWFXI26vMQ97WfQ125cHlj3g0uuZH+SnYmGo7h422t
+      YqfjT3kdW/4U70VsK/Q4ltM6G8hSQ7Opwx2veE4BKs55nHLiRnV75QVSgtiuG1RT
+      7Rk7ADrZ2VjbpUGlyx8chgUp5Q==
+      -----END PRIVATE KEY-----
+    termination: reencrypt
+    insecureEdgeTerminationPolicy: Redirect
+  to:
+    kind: Service
+    name: demo-app-reencrypt

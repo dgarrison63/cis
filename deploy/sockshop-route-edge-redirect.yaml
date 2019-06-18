@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: Route
+metadata:
+  labels:
+    name: sockshop-route-edge
+    f5type: virtual-server
+  name: sockshop-route-edge
+  namespace: sock-shop
+  annotations:
+    # Specify a supported BIG-IP load balancing mode
+    virtual-server.f5.com/balance: least-connections-node
+    virtual-server.f5.com/clientssl: /Common/sockshop
+    virtual-server.f5.com/health: |
+      [
+        {
+          "path": "sockshop.example.com/",
+          "send": "GET /",
+          "protocol": "http",
+          "recv": "OK",
+          "interval": 5,
+          "timeout": 16
+        }
+      ]
+spec:
+  tls: 
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  host: sockshop.example.com
+  port:
+    targetPort: 8079
+  to:
+    kind: Service
+    name: front-end
+

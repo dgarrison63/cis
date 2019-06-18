@@ -1,0 +1,33 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: demo-app
+  namespace: default
+  labels:
+    f5type: virtual-server
+data:
+  schema: "f5schemadb://bigip-virtual-server_v0.1.7.json"
+  data: |
+    {
+      "virtualServer": {
+        "backend": {
+          "servicePort": 8080,
+          "serviceName": "demo-app",
+          "healthMonitors": [{
+            "interval": 5,
+            "protocol": "http",
+            "send": "GET /\r\n",
+            "timeout": 16
+          }]
+        },
+        "frontend": {
+          "virtualAddress": {
+            "port": 80,
+            "bindAddr": "10.1.20.201"
+          },
+          "partition": "ocp",
+          "balance": "round-robin",
+          "mode": "http"
+        }
+      }
+    }

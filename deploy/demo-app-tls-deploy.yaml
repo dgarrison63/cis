@@ -1,0 +1,18 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: demo-app-tls
+  namespace: default
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: demo-app-tls
+    spec:
+      containers:
+      - name: f5-demo-app
+        image: chen23/f5-demo-app:openshift
+        ports:
+         - containerPort: 8443
+           protocol: TCP
